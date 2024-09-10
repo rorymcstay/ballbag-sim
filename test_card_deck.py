@@ -1,7 +1,6 @@
-import pytest
-
-from card_deck import (
+from ballbag_sim import (
     BallbagGame,
+    BallbagRound,
     Card,
     CardDeck,
     EmptyDeckError,
@@ -112,6 +111,37 @@ def test_card_value():
     assert Card.JOKER_2.score == 0
 
 
+def test_tally_scores():
+
+    game = BallbagGame(
+        [
+            RandomPlayer(1, hand=[Card.QUEEN_DIAMONDS]),
+            RandomPlayer(2, hand=[Card.QUEEN_SPADES]),
+        ]
+    )
+
+    round = BallbagRound(game.players)
+
+    round.tally_scores(game.players[1])
+
+    game.players[0].total_score = 0
+    game.players[1].total_score = 30
+
+    game = BallbagGame(
+        [
+            RandomPlayer(1, hand=[Card.SEVEN_SPADES]),
+            RandomPlayer(2, hand=[Card.QUEEN_SPADES]),
+        ]
+    )
+
+    round = BallbagRound(game.players)
+
+    round.tally_scores(game.players[0])
+
+    game.players[0].total_score = 0
+    game.players[1].total_score = 10
+
+
 def test_random_players_vs_max_card_down():
 
     game = BallbagGame(
@@ -136,4 +166,4 @@ def test_random_players_vs_max_card_down():
         print(f"\n{i} games played")
 
 
-test_ballbag_round_random_players()
+test_random_players_vs_max_card_down()

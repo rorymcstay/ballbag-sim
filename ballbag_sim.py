@@ -158,6 +158,33 @@ class Player(abc.ABC):
         return sum((c.score for c in self._hand))
 
 
+class ManualPlayer(Player):
+
+    def play_cards(self) -> list[Card]:
+        raise NotImplementedError
+
+    def draw_card(self, deck: CardDeck, pile: list[Card]) -> Card:
+        raise NotImplementedError
+
+    def call(self, players: list[Player]) -> bool:
+        raise NotImplementedError
+
+    def input_hand(self):
+
+        while card := input(f"Enter card for {self.number}: "):
+            try:
+                self._hand.append(
+                    (
+                        Card[f"{card.upper()}_SPADES"]
+                        if card.upper() != "JOKER"
+                        else Card.JOKER_1
+                    )
+                )
+            except KeyError as ex:
+                print("That is not a valid card. Please try again")
+                continue
+
+
 class RandomPlayer(Player):
 
     def play_cards(self) -> list[Card]:
@@ -211,9 +238,9 @@ class BallbagGame:
                 num_rounds += 1
                 round = BallbagRound(self.players)
                 player = round.run()
-                # print(f"Winner of round {num_rounds}: {player}, hand: {player._hand}")
+                print(f"Winner of round {num_rounds}: {player}, hand: {player._hand}")
 
-            # print(self.leaders)
+            print(self.leaders)
             return self.leaders[0]
         finally:
             for p in self.players:
@@ -253,6 +280,8 @@ class BallbagRound:
 
         if any(p.score <= caller.score for p in self.players if p is not caller):
             caller.total_score += 30
+            # reassign winner of round
+            caller = min(self.players, key=lambda i: i.score)
         else:
             caller.total_score += 0
 
@@ -317,7 +346,7 @@ class BallbagRound:
     def run(self):
         """Play rounds until"""
         while self.game_round():
-            # print(self.players)
+            print(self.players)
             pass
 
         return min(self.players, key=lambda p: p.score)
